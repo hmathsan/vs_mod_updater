@@ -1,4 +1,4 @@
-package main
+package readdir
 
 import (
 	"archive/zip"
@@ -13,7 +13,7 @@ import (
 const apiBaseUrl = "https://mods.vintagestory.at/api/mod/"
 const modsDirStr = "C:/Users/mathe/Documentos/mods-folder-test/Mods"
 
-func findInstalledMods() []string {
+func FindInstalledMods() []string {
 
 	modsDir, err := os.ReadDir(modsDirStr)
 	utils.Check(err)
@@ -37,7 +37,8 @@ func findInstalledMods() []string {
 	return fileNames
 }
 
-func fetchModFiles(fileNames []string, tempPath *string, sub chan model.ModInfo) {
+func FetchModFiles(fileNames []string, tempPath *string, sub chan model.ModInfo) {
+	defer close(sub)
 	var infos = []chan model.ModInfo{}
 
 	for i, fileName := range fileNames {
@@ -91,7 +92,7 @@ func unzipModFilesParallel(fileName string, tempPath *string, mInfoChan chan mod
 		var modInfo model.ModInfoJson
 		json.Unmarshal([]byte(jsonFile), &modInfo)
 
-		apiModInfoResp := getLatestVersionFromApi(modInfo.ModId)
+		apiModInfoResp := GetLatestVersionFromApi(modInfo.ModId)
 		mInfoChan <- model.NewModInfo(modInfo.Name, modInfo.Version, modInfo.ModId, apiModInfoResp)
 
 		break
@@ -100,7 +101,7 @@ func unzipModFilesParallel(fileName string, tempPath *string, mInfoChan chan mod
 	return m
 }
 
-func getLatestVersionFromApi(modId string) *model.ApiModInfo {
+func GetLatestVersionFromApi(modId string) *model.ApiModInfo {
 	resp, err := http.Get(apiBaseUrl + modId)
 	utils.Check(err)
 
