@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"vs-mod-updater/model"
@@ -20,7 +21,7 @@ func FindInstalledMods() []string {
 
 	fileNames := make([]string, 0)
 
-	// log.Println("Looking for installed mods.")
+	log.Println("Looking for installed mods.")
 	for _, entry := range modsDir {
 		fileName := entry.Name()
 		fileExtension := fileName[len(fileName)-3:]
@@ -32,7 +33,7 @@ func FindInstalledMods() []string {
 		}
 	}
 
-	// log.Printf("Found a total of %d mods installed\n", len(fileNames))
+	log.Printf("Found a total of %d mods installed\n", len(fileNames))
 
 	return fileNames
 }
@@ -81,7 +82,7 @@ func unzipModFilesParallel(fileName string, tempPath *string, mInfoChan chan mod
 		utils.Check(err)
 		defer zippedFile.Close()
 
-		// log.Println("unzipping modinfo.json from", fileName)
+		log.Println("unzipping modinfo.json from", fileName)
 
 		_, err = io.Copy(destinationFile, zippedFile)
 		utils.Check(err)
